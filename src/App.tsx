@@ -1,54 +1,50 @@
 import { useEffect, useState } from "react";
 import type { JSX } from "react";
 import { GameShell } from "./components/GameShell";
-import { DashboardScreen } from "./components/game/screens/DashboardScreen";
-import { StudioScreen } from "./components/game/screens/StudioScreen";
-import { AnalyticsScreen } from "./components/game/screens/AnalyticsScreen";
+import { MapScreen } from "./components/game/screens/MapScreen";
+import { StoryScreen } from "./components/game/screens/StoryScreen";
+import { JournalScreen } from "./components/game/screens/JournalScreen";
 import { SettingsScreen } from "./components/game/screens/SettingsScreen";
+import { AnimatedScreen } from "./components/game/shared/AnimatedScreen";
+import { LoadingState } from "./components/ui/LoadingState";
 import { useGameStore } from "./game/state/gameStore";
-import { startGameLoop, stopGameLoop } from "./game/engine/GameLoop";
-import { loadGame, hasSave } from "./game/save/SaveManager";
 import type { ScreenId } from "./game/types";
 
 const screenComponents: Record<ScreenId, () => JSX.Element> = {
-  dashboard: DashboardScreen,
-  studio: StudioScreen,
-  analytics: AnalyticsScreen,
+  map: MapScreen,
+  story: StoryScreen,
+  journal: JournalScreen,
   settings: SettingsScreen,
 };
 
 export default function App() {
-  const currentScreen = useGameStore((s) => s.currentScreen);
-  const [ready, setReady] = useState(false);
+  const screen = useGameStore((s) => s.screen);
+  const loadGame = useGameStore((s) => s.loadGame);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (hasSave()) {
-      loadGame();
+    const loaded = loadGame();
+    if (!loaded) {
+      useGameStore.getState().showToast("Welcome to Influencer Empire! Start at the Studio.", "info");
     }
-    startGameLoop();
-    setReady(true);
+    setLoading(false);
+  }, [loadGame]);
 
-    return () => {
-      stopGameLoop();
-    };
-  }, []);
-
-  if (!ready) {
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-dvh bg-[#0a0a1a]">
-        <div className="text-center space-y-2">
-          <div className="text-4xl animate-pulse text-cyan-400">✦</div>
-          <p className="text-sm text-white/40 font-mono">Loading...</p>
-        </div>
+      <div className="flex items-center justify-center h-dvh bg-bg-primary">
+        <LoadingState message="Loading empire..." size={80} />
       </div>
     );
   }
 
-  const Screen = screenComponents[currentScreen];
+  const Screen = screenComponents[screen];
 
   return (
     <GameShell>
-      <Screen />
+      <AnimatedScreen key={screen}>
+        <Screen />
+      </AnimatedScreen>
     </GameShell>
   );
 }

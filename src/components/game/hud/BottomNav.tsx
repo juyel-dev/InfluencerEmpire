@@ -1,35 +1,31 @@
-import { useGameStore } from "../../../game/state/gameStore";
-import type { ScreenId } from "../../../game/types";
+import type { ScreenId } from "@game/types";
+import { useGameStore } from "@game/state/gameStore";
 
 const navItems: { id: ScreenId; label: string; icon: string }[] = [
-  { id: "dashboard", label: "Home", icon: "🏠" },
-  { id: "studio", label: "Studio", icon: "🎬" },
-  { id: "analytics", label: "Analytics", icon: "📈" },
+  { id: "map", label: "Map", icon: "🗺️" },
+  { id: "story", label: "Story", icon: "📖" },
+  { id: "journal", label: "Journal", icon: "📓" },
   { id: "settings", label: "Settings", icon: "⚙️" },
 ];
 
 export function BottomNav() {
-  const currentScreen = useGameStore((s) => s.currentScreen);
+  const screen = useGameStore((s) => s.screen);
   const setScreen = useGameStore((s) => s.setScreen);
 
   return (
-    <nav className="bg-black/40 backdrop-blur-2xl border-t border-white/10 px-2 py-1 flex items-center justify-around shrink-0">
-      {navItems.map((item) => {
-        const isActive = currentScreen === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setScreen(item.id)}
-            className={`flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200 hover:bg-white/5 active:scale-95 ${
-              isActive ? "text-cyan-400" : "text-white/40 hover:text-white/70"
-            }`}
-            aria-label={item.label}
-          >
-            <span className="text-lg">{item.icon}</span>
-            <span className="text-[10px] font-medium uppercase tracking-wider">{item.label}</span>
-          </button>
-        );
-      })}
+    <nav className="bg-black/60 backdrop-blur-2xl border-t border-white/10 flex shrink-0">
+      {navItems.map((item) => (
+        <button
+          key={item.id}
+          onClick={() => setScreen(item.id)}
+          className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-xs transition-all active:scale-[0.95] ${
+            screen === item.id ? "text-accent-cyan" : "text-text-muted hover:text-text-secondary"
+          }`}
+        >
+          <span className="text-base">{item.icon}</span>
+          <span className="font-medium">{item.label}</span>
+        </button>
+      ))}
     </nav>
   );
 }

@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+@theme {
+  --color-bg-primary: #0a0a1a;
+  --color-bg-surface: rgba(255, 255, 255, 0.04);
+  --color-bg-card: rgba(255, 255, 255, 0.06);
+  --color-bg-hover: rgba(255, 255, 255, 0.08);
+  --color-bg-overlay: rgba(0, 0, 0, 0.4);
+  --color-border-default: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
+  --color-text-primary: rgba(255, 255, 255, 0.9);
+  --color-text-secondary: rgba(255, 255, 255, 0.45);
+  --color-text-muted: rgba(255, 255, 255, 0.25);
+  --color-text-accent: #06b6d4;
+
+  --color-accent-cyan: #06b6d4;
+  --color-accent-purple: #d946ef;
+  --color-accent-amber: #f59e0b;
+  --color-accent-emerald: #10b981;
+  --color-accent-blue: #3b82f6;
+  --color-accent-fuchsia: #d946ef;
+  --color-accent-orange: #d97706;
+
+  --color-milestone: #f59e0b;
+  --color-error: #ef4444;
+  --color-success: #22c55e;
+
+  --radius-card: 1.5rem;
+  --radius-card-sm: 1rem;
+  --radius-card-xs: 0.75rem;
+  --radius-button: 0.75rem;
+
+  --font-game: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
 *,
 *::before,
 *::after {
@@ -16,18 +49,57 @@ body,
 
 body {
   background-color: #0a0a1a;
-  color: rgba(255, 255, 255, 0.9);
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  color: var(--color-text-primary);
+  font-family: var(--font-game);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slideDown {
+  animation: slideDown 0.3s ease-out;
 }
 
-.animate-pulse {
-  animation: pulse 2s ease-in-out infinite;
+@keyframes floatUp {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+}
+.animate-floatUp {
+  animation: floatUp 1.2s ease-out forwards;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scaleIn {
+  animation: scaleIn 0.2s ease-out;
 }
