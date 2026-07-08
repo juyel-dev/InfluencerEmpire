@@ -1,5 +1,6 @@
 import type { ScreenId } from "@game/types";
 import { useGameStore } from "@game/state/gameStore";
+import { audio } from "@lib/audio";
 
 const navItems: { id: ScreenId; label: string; icon: string }[] = [
   { id: "map", label: "Map", icon: "🗺️" },
@@ -17,7 +18,10 @@ export function BottomNav() {
       {navItems.map((item) => (
         <button
           key={item.id}
-          onClick={() => setScreen(item.id)}
+          onClick={() => {
+            if (screen !== item.id) audio.play("click");
+            setScreen(item.id);
+          }}
           className={`flex-1 flex flex-col items-center gap-0.5 py-2 text-xs transition-all active:scale-[0.95] ${
             screen === item.id ? "text-accent-cyan" : "text-text-muted hover:text-text-secondary"
           }`}

@@ -1,5 +1,8 @@
 import { useState } from "react";
+import type { MouseEvent } from "react";
 import { useGameStore } from "@game/state/gameStore";
+import { useFeedbackStore, type FloatKind } from "@game/state/feedbackStore";
+import { audio } from "@lib/audio";
 import { ProgressBar } from "@ui/index";
 import type { Location } from "@game/types";
 
@@ -21,6 +24,39 @@ export function ActivityList({ loc }: ActivityListProps) {
   const showToast = useGameStore((s) => s.showToast);
 
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const handleAct = (e: MouseEvent, act: Location["activities"][number]) => {
+    audio.play("click");
+    const before = useGameStore.getState().state.resources;
+    const result = doActivity(act.id);
+    showToast(result.message, result.success ? "success" : "warning");
+    if (result.success && result.outcome) {
+      const after = useGameStore.getState().state.resources;
+      const fb = useFeedbackStore.getState();
+      const x = e.clientX;
+      const y = e.clientY;
+      const o = result.outcome;
+      if (o.tier === "viral") {
+        audio.play("follower");
+        fb.celebrate(x, y);
+      } else if (o.tier === "flop") {
+        audio.play("fail");
+      } else {
+        audio.play("success");
+      }
+      const deltas: [number, FloatKind, string][] = [
+        [after.followers - before.followers, "follower", "👥"],
+        [after.money - before.money, "money", "💰"],
+        [after.reputation - before.reputation, "reputation", "⭐"],
+        [after.creativity - before.creativity, "creativity", "🎨"],
+        [after.energy - before.energy, "energy", "⚡"],
+      ];
+      for (const [d, kind, icon] of deltas) {
+        if (d !== 0) fb.spawn(`${d > 0 ? "+" : ""}${d} ${icon}`, kind, x, y - 12);
+      }
+    }
+    if (result.success) setTimeout(() => useGameStore.getState().checkMilestones(), 100);
+  };
 
   const res = state.resources;
   const locked = loc.activities.filter((a) => a.minDay > res.day);
@@ -55,11 +91,7 @@ export function ActivityList({ loc }: ActivityListProps) {
           return (
             <button
               key={act.id}
-              onClick={() => {
-                const result = doActivity(act.id);
-                showToast(result.message, result.success ? "success" : "warning");
-                if (result.success) setTimeout(() => useGameStore.getState().checkMilestones(), 100);
-              }}
+              onClick={(e) => handleAct(e, act)}
               disabled={!canDo}
               onMouseEnter={() => setHoveredId(act.id)}
               onMouseLeave={() => setHoveredId(null)}

@@ -2,6 +2,11 @@ import type { ReactNode } from "react";
 import { TopBar } from "./game/hud/TopBar";
 import { BottomNav } from "./game/hud/BottomNav";
 import { ToastContainer } from "./game/shared/ToastContainer";
+import { FloatLayer } from "./game/shared/FloatLayer";
+import { Confetti } from "./game/shared/Confetti";
+import { DaySummaryOverlay } from "./game/overlays/DaySummaryOverlay";
+import { IntroScreen } from "./game/overlays/IntroScreen";
+import { EndScreen } from "./game/overlays/EndScreen";
 
 interface GameShellProps {
   children: ReactNode;
@@ -16,6 +21,11 @@ export function GameShell({ children }: GameShellProps) {
       </main>
       <BottomNav />
       <ToastContainer />
+      <FloatLayer />
+      <Confetti />
+      <DaySummaryOverlay />
+      <EndScreen />
+      <IntroScreen />
     </div>
   );
 }

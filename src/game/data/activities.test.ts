@@ -13,16 +13,21 @@ const base: Resources = {
 };
 
 const rngMin = () => 0;
+const rngMid = () => 0.5;
 const rngMax = () => 0.999;
 
+const delta = (out: { resources: Partial<Resources> }, key: keyof Resources) =>
+  (out.resources[key] as number) - (base[key] as number);
+
 describe("ACTIVITY_EFFECTS", () => {
-  it("every activity resolves to valid finite numbers with text", () => {
+  it("every activity resolves to valid finite numbers, text, and a tier", () => {
     for (const def of Object.values(ACTIVITY_EFFECTS)) {
-      for (const rng of [rngMin, rngMax]) {
+      for (const rng of [rngMin, rngMid, rngMax]) {
         const out = def.resolve(rng, base);
         expect(typeof out.journal).toBe("string");
         expect(typeof out.message).toBe("string");
         expect(out.journal.length).toBeGreaterThan(0);
+        expect(["flop", "normal", "viral"]).toContain(out.tier);
         for (const v of Object.values(out.resources)) {
           expect(Number.isFinite(v)).toBe(true);
         }
@@ -30,41 +35,53 @@ describe("ACTIVITY_EFFECTS", () => {
     }
   });
 
+  it("activities can fail (flop) or succeed big (viral) at low/high rng", () => {
+    const flop = ACTIVITY_EFFECTS.record_video.resolve(rngMax, base);
+    const viral = ACTIVITY_EFFECTS.record_video.resolve(rngMin, base);
+    expect(flop.tier).toBe("flop");
+    expect(viral.tier).toBe("viral");
+    expect(delta(viral, "followers")).toBeGreaterThan(delta(flop, "followers"));
+  });
+
   it("sleep restores energy to maxEnergy", () => {
-    const out = ACTIVITY_EFFECTS.sleep.resolve(rngMin, { ...base, energy: 3 });
+    const out = ACTIVITY_EFFECTS.sleep.resolve(rngMid, { ...base, energy: 3 });
     expect(out.resources.energy).toBe(10);
   });
 
   it("workout is oncePerDay and increments maxEnergy", () => {
     expect(ACTIVITY_EFFECTS.workout.oncePerDay).toBe(true);
-    const out = ACTIVITY_EFFECTS.workout.resolve(rngMin, base);
+    const out = ACTIVITY_EFFECTS.workout.resolve(rngMid, base);
     expect(out.resources.maxEnergy).toBe(11);
   });
 
   it("shop_gear requires money and subtracts exactly 25", () => {
     expect(ACTIVITY_EFFECTS.shop_gear.requires?.money).toBe(25);
-    const out = ACTIVITY_EFFECTS.shop_gear.resolve(rngMin, base);
-    expect(out.resources.money).toBe(75);
-    expect(out.resources.creativity).toBe(16); // 10 + min(6)
+    const out = ACTIVITY_EFFECTS.shop_gear.resolve(rngMid, base);
+    expect(delta(out, "money")).toBe(-25);
+    expect(delta(out, "creativity")).toBeGreaterThanOrEqual(6);
+    expect(delta(out, "creativity")).toBeLessThanOrEqual(10);
   });
 
   it("fan_meet requires reputation", () => {
     expect(ACTIVITY_EFFECTS.fan_meet.requires?.reputation).toBe(5);
   });
 
-  it("record_video stays within documented bounds", () => {
-    const min = ACTIVITY_EFFECTS.record_video.resolve(rngMin, base);
-    expect(min.resources.creativity).toBe(14); // 10 + 4
-    expect(min.resources.followers).toBe(108); // 100 + 8
-    const max = ACTIVITY_EFFECTS.record_video.resolve(rngMax, base);
-    expect(max.resources.creativity).toBe(17); // 10 + 7
-    expect(max.resources.followers).toBe(115); // 100 + 15
+  it("record_video stays within normal-tier bounds", () => {
+    const out = ACTIVITY_EFFECTS.record_video.resolve(rngMid, base);
+    expect(out.tier).toBe("normal");
+    expect(delta(out, "creativity")).toBeGreaterThanOrEqual(4);
+    expect(delta(out, "creativity")).toBeLessThanOrEqual(7);
+    expect(delta(out, "followers")).toBeGreaterThanOrEqual(8);
+    expect(delta(out, "followers")).toBeLessThanOrEqual(15);
   });
 
   it("live_stream produces money, followers, and reputation", () => {
-    const out = ACTIVITY_EFFECTS.live_stream.resolve(rngMin, base);
-    expect(out.resources.money).toBe(115); // 100 + 15
-    expect(out.resources.followers).toBe(112); // 100 + 12
-    expect(out.resources.reputation).toBe(11); // 10 + 1
+    const out = ACTIVITY_EFFECTS.live_stream.resolve(rngMid, base);
+    expect(delta(out, "money")).toBeGreaterThanOrEqual(10);
+    expect(delta(out, "money")).toBeLessThanOrEqual(30);
+    expect(delta(out, "followers")).toBeGreaterThanOrEqual(12);
+    expect(delta(out, "followers")).toBeLessThanOrEqual(25);
+    expect(delta(out, "reputation")).toBeGreaterThanOrEqual(1);
+    expect(delta(out, "reputation")).toBeLessThanOrEqual(2);
   });
 });

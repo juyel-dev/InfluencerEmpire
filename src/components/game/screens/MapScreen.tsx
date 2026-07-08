@@ -4,6 +4,7 @@ import { NPCS } from "@game/data/npcs";
 import type { LocationId } from "@game/types";
 import { Card, StatCard, IconBox } from "@ui/index";
 import { CharacterPortrait, NPC_PORTRAITS } from "@assets/characters";
+import { audio } from "@lib/audio";
 
 export function MapScreen() {
   const state = useGameStore((s) => s.state);
@@ -11,6 +12,7 @@ export function MapScreen() {
   const setScreen = useGameStore((s) => s.setScreen);
   const showToast = useGameStore((s) => s.showToast);
   const res = state.resources;
+  const playerName = state.playerName || "Creator";
 
   const mainLocations = LOCATIONS.filter((l) => l.id !== "home");
   const specialLocations = LOCATIONS.filter((l) => l.id === "home");
@@ -18,8 +20,10 @@ export function MapScreen() {
   const handleGoTo = (id: LocationId) => {
     const msg = goToLocation(id);
     if (msg) {
+      audio.play("fail");
       showToast(msg, "warning");
     } else {
+      audio.play("open");
       setScreen("story");
     }
   };
@@ -33,8 +37,8 @@ export function MapScreen() {
             👤
           </div>
           <div className="flex-1">
-            <p className="text-lg font-bold text-white">Day {res.day}</p>
-            <p className="text-xs text-text-secondary">{res.followers} followers · ${res.money} · {res.reputation}% rep</p>
+            <p className="text-lg font-bold text-white">{playerName}</p>
+            <p className="text-xs text-text-secondary">Day {res.day} · {res.followers} followers · ${res.money} · {res.reputation}% rep</p>
           </div>
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4">
@@ -44,6 +48,13 @@ export function MapScreen() {
           <StatCard label="Creativity" value={<span className="text-accent-purple">{res.creativity}</span>} />
         </div>
       </Card>
+
+      {/* First-day hint */}
+      {res.day <= 2 && state.completedActivities.length === 0 && (
+        <div className="rounded-card border border-accent-cyan/30 bg-accent-cyan/[0.06] px-4 py-3 text-xs text-text-secondary animate-fadeIn">
+          <span className="text-accent-cyan font-semibold">How to play:</span> Tap a location → do activities to grow → <span className="text-white">End Day</span> to recover. Post daily or the algorithm eats your followers!
+        </div>
+      )}
 
       {/* Character faces */}
       <div className="flex gap-2 overflow-x-auto pb-1">

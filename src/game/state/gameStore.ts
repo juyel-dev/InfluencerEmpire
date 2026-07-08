@@ -3,8 +3,11 @@ import type { GameState, ScreenId, JournalEntry, LocationId, DaySummary, Resourc
 import { MILESTONES, FINAL_GOAL } from "../types";
 import { getLocation } from "../data/locations";
 import { ACTIVITY_EFFECTS } from "../data/activities";
+import type { ActivityOutcome } from "../data/activities";
 import { computeDaySummary } from "../data/summary";
-import { getDialogueNode, getRepeatDialogue, getRepeatEncounter, STORY_EVENTS } from "../data/story";
+import { getDialogueNode, getRepeatDialogue, getRepeatEncounter, STORY_EVENTS, RANDOM_EVENTS } from "../data/story";
+import { audio } from "../../lib/audio";
+import { useFeedbackStore } from "./feedbackStore";
 
 const SAVE_KEY = "ie_save_v2";
 
@@ -25,6 +28,8 @@ function createInitialState(): GameState {
     pendingEvents: STORY_EVENTS.map((e) => ({ ...e })),
     reachedMilestones: [],
     won: false,
+    lost: false,
+    playerName: "",
   };
 }
 
@@ -50,6 +55,8 @@ function deserializeState(raw: string): GameState | null {
     if (!state.dayStartResources) {
       state.dayStartResources = { ...state.resources };
     }
+    if (typeof state.lost !== "boolean") state.lost = false;
+    if (typeof state.playerName !== "string") state.playerName = "";
     return state;
   } catch { return null; }
 }
@@ -67,13 +74,15 @@ interface GameStore {
   lastSaveTime: number | null;
   saveStatus: "idle" | "saving" | "loaded" | "error";
   daySummary: DaySummary | null;
+  pendingEventNodeId: string | null;
 
   setScreen: (screen: ScreenId) => void;
   resetGame: () => void;
   saveGame: () => void;
   loadGame: () => boolean;
+  setPlayerName: (name: string) => void;
   goToLocation: (id: LocationId) => string | null;
-  doActivity: (activityId: string) => { success: boolean; message: string };
+  doActivity: (activityId: string) => { success: boolean; message: string; outcome?: ActivityOutcome };
   endDay: () => void;
   selectDialogueChoice: (choiceIndex: number) => void;
   endDialogue: () => void;
@@ -81,6 +90,7 @@ interface GameStore {
   showToast: (message: string, type: Toast["type"]) => void;
   dismissToast: (id: number) => void;
   clearDaySummary: () => void;
+  startRandomEvent: (nodeId: string) => void;
 }
 
 let toastCounter = 0;
@@ -92,10 +102,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastSaveTime: null,
   saveStatus: "idle",
   daySummary: null,
+  pendingEventNodeId: null,
 
   setScreen: (screen) => set({ screen }),
 
-  resetGame: () => set({ state: createInitialState(), daySummary: null }),
+  resetGame: () => set({ state: createInitialState(), daySummary: null, pendingEventNodeId: null }),
+
+  setPlayerName: (name) => {
+    set((st) => ({ state: { ...st.state, playerName: name.trim().slice(0, 16) } }));
+    get().saveGame();
+  },
 
   saveGame: () => {
     try {
@@ -221,22 +237,54 @@ export const useGameStore = create<GameStore>((set, get) => ({
       },
     }));
     pushJournal(get, outcome.journal, "activity");
-    return { success: true, message: outcome.message };
+    return { success: true, message: outcome.message, outcome };
   },
 
   endDay: () => {
-    const prevState = get().state;
-    const summary = computeDaySummary(prevState);
+    const prev = get().state;
+    const summary = computeDaySummary(prev);
+
+    const upkeep = 2 + Math.floor(prev.resources.day / 3);
+    const didWork = prev.completedActivities.length > 0;
+    const churn = didWork ? 0 : Math.floor(prev.resources.followers * 0.04);
+    const nextDay = prev.resources.day + 1;
+
+    const newRes = {
+      ...prev.resources,
+      day: nextDay,
+      energy: prev.resources.maxEnergy,
+      money: prev.resources.money - upkeep,
+      followers: Math.max(0, prev.resources.followers - churn),
+    };
+
+    const won = newRes.followers >= FINAL_GOAL;
+    const lost = newRes.money < -50;
+
     set((st) => ({
       daySummary: summary,
       state: {
         ...st.state,
-        resources: { ...st.state.resources, day: st.state.resources.day + 1, energy: st.state.resources.maxEnergy },
-        dayStartResources: { ...st.state.resources, day: st.state.resources.day + 1, energy: st.state.resources.maxEnergy },
+        resources: newRes,
+        dayStartResources: { ...newRes },
         completedActivities: [],
+        won,
+        lost,
       },
     }));
-    pushJournal(get, `Day ${prevState.resources.day} ended.`, "system");
+
+    if (churn > 0) {
+      pushJournal(get, `Quiet day — the algorithm ate ${churn} followers. Post daily to stay relevant.`, "activity");
+    }
+    pushJournal(get, `Day ${prev.resources.day} ended. Rent paid: -$${upkeep}.`, "system");
+
+    if (!won && !lost && nextDay > 2 && RANDOM_EVENTS.length > 0) {
+      const chance = 0.35 + Math.min(nextDay * 0.02, 0.25);
+      if (Math.random() < chance) {
+        const nodeId = RANDOM_EVENTS[Math.floor(Math.random() * RANDOM_EVENTS.length)];
+        set({ pendingEventNodeId: nodeId });
+      }
+    }
+
     get().saveGame();
   },
 
@@ -300,6 +348,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set((st) => ({ state: { ...st.state, reachedMilestones: [...st.state.reachedMilestones, milestone.goal] } }));
       get().showToast(milestone.label, "success");
       pushJournal(get, milestone.label, "story");
+      audio.play("milestone");
+      const fb = useFeedbackStore.getState();
+      if (typeof window !== "undefined") fb.celebrate(window.innerWidth / 2, window.innerHeight / 2);
       if (milestone.goal >= FINAL_GOAL) {
         set((st) => ({ state: { ...st.state, won: true } }));
         get().showToast("🏆 You've won! Check Journal for your story.", "success");
@@ -317,7 +368,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
   dismissToast: (id) => {
     set((st) => ({ toasts: st.toasts.filter((t) => t.id !== id) }));
   },
-  clearDaySummary: () => set({ daySummary: null }),
+  clearDaySummary: () => {
+    const pending = get().pendingEventNodeId;
+    set({ daySummary: null, pendingEventNodeId: null });
+    if (pending) get().startRandomEvent(pending);
+  },
+  startRandomEvent: (nodeId) => {
+    const node = getDialogueNode(nodeId);
+    if (!node) return;
+    audio.play("event");
+    set((st) => ({
+      screen: "story",
+      state: { ...st.state, activeDialogueNodeId: nodeId, activeNpcId: node.npcId },
+    }));
+  },
 }));
 
 function pushJournal(get: () => GameStore, text: string, type: JournalEntry["type"]) {

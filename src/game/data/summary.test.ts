@@ -19,6 +19,8 @@ function makeState(overrides?: Partial<GameState>): GameState {
     pendingEvents: [],
     reachedMilestones: [],
     won: false,
+    lost: false,
+    playerName: "",
     ...overrides,
   };
 }

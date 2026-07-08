@@ -200,7 +200,52 @@ export const DIALOGUE_NODES: Record<string, DialogueNode> = {
       { text: "I'll listen to it when I'm creating tonight. Thanks.", nextNodeId: null, endsDialogue: true, relationshipChange: { ava: 20 }, resourceChange: { creativity: 10 } },
     ],
   },
+
+  // === RANDOM EVENTS (day-end surprises) ===
+  "rand_brand": {
+    id: "rand_brand",
+    npcId: "omar",
+    text: "Psst — a brand saw your stuff. They'll pay you $60 to feature their product, but your followers might smell the sellout. Your call.",
+    choices: [
+      { text: "Take the deal. Rent won't pay itself.", nextNodeId: null, endsDialogue: true, resourceChange: { money: 60, reputation: -3 }, relationshipChange: { omar: 10 } },
+      { text: "Decline. I keep my integrity.", nextNodeId: null, endsDialogue: true, relationshipChange: { omar: 5 }, resourceChange: { creativity: 3 } },
+    ],
+  },
+  "rand_troll": {
+    id: "rand_troll",
+    npcId: null,
+    text: "A troll army just flooded your comments. The drama is getting attention — fast. How do you play it?",
+    choices: [
+      { text: "Clap back and ride the drama.", nextNodeId: null, endsDialogue: true, resourceChange: { followers: 40, reputation: -4 } },
+      { text: "Stay classy and ignore them.", nextNodeId: null, endsDialogue: true, resourceChange: { followers: -8, reputation: 2 } },
+    ],
+  },
+  "rand_resurface": {
+    id: "rand_resurface",
+    npcId: null,
+    text: "One of your old videos is quietly resurfacing on the feeds. People are rediscovering you.",
+    choices: [
+      { text: "Repost it with a fresh take.", nextNodeId: null, endsDialogue: true, resourceChange: { followers: 55, energy: -2 } },
+      { text: "Let it breathe on its own.", nextNodeId: null, endsDialogue: true, resourceChange: { followers: 20 } },
+    ],
+  },
+  "rand_leo_drama": {
+    id: "rand_leo_drama",
+    npcId: "leo",
+    text: "Leo's in some hot water and the internet is picking sides. A clip of you two together is circulating. Distance yourself, or back him up?",
+    choices: [
+      { text: "Back Leo publicly. Loyalty > clout.", nextNodeId: null, endsDialogue: true, relationshipChange: { leo: 25 }, resourceChange: { followers: -15, reputation: 5 } },
+      { text: "Stay silent and protect your brand.", nextNodeId: null, endsDialogue: true, relationshipChange: { leo: -15 }, resourceChange: { followers: 10, reputation: 2 } },
+    ],
+  },
 };
+
+export const RANDOM_EVENTS: string[] = [
+  "rand_brand",
+  "rand_troll",
+  "rand_resurface",
+  "rand_leo_drama",
+];
 
 export const STORY_EVENTS: StoryEvent[] = [
   { id: "meet_zara", triggerDay: 1, locationId: "studio", npcId: "zara", dialogueNodeId: "zara_intro", priority: 1 },

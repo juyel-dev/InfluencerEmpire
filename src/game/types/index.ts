@@ -132,5 +132,7 @@ export interface GameState {
   pendingEvents: StoryEvent[];
   reachedMilestones: number[];
   won: boolean;
+  lost: boolean;
+  playerName: string;
   dayStartResources: Resources;
 }
