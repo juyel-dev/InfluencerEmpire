@@ -560,6 +560,13 @@ src/
 - **Decision:** Activity buttons show viral/flop chance based on current creativity (planned for implementation).
 - **Impact:** Requires UI update to activity cards. Shows "Viral: 12% | Flop: 16%" as small text.
 
+### D-011 — Mega Viral Moment (rare tiers)
+- **Date:** 2026-07-09
+- **Reason:** Regular viral outcomes (2.3×) are exciting but not memorable. Players need occasional "legendary" moments that feel like a milestone event.
+- **Alternatives:** Higher viral multiplier only, entirely separate random event
+- **Decision:** Add a `mega` flag: when a roll is viral AND a second rng() < 0.16, outcome becomes MEGA VIRAL (followers ×2.2 again, money/rep ×1.5). Triggers a full-screen ViralMomentOverlay with animated SVG burst, count-up, win sound, and confetti. ~16% of viral rolls ≈ 2–4% of all activity rolls.
+- **Impact:** Creates unforgettable moments. Drives screenshot/share behavior. Tuning lever = the 0.16 second-roll chance.
+
 ---
 
 ## 16. Changelog
@@ -571,6 +578,7 @@ src/
 | 2026-07-08 | Game feel transformation | Audio engine (Web Audio synth). Floating feedback system (FloatLayer + feedbackStore). Confetti component. Activity outcome tiers (viral/flop/normal). Economy system (upkeep, churn, bankruptcy). Day Summary Overlay. Intro Screen (player identity). Win/Lose End Screens. Random events. Milestone celebration juice. Sound toggle in Settings. Reduced-motion CSS. Tutorial hint banner. |
 | 2026-07-08 | Production Readiness Review | Pre-production master plan, 15 TODOs, Market research, Player journey, Core systems design. |
 | 2026-07-08 | Project Constitution | Created this document as permanent project authority. Decision log, changelog, open questions, risks, AI agent instructions. |
+| 2026-07-09 | Viral Moment + Art Pass | Added mega-viral outcome tier (rare, ~16% of viral rolls) with full-screen ViralMomentOverlay (animated SVG burst, count-up, sound, confetti). Added SVG art: ViralBurst illustration, LocationScene per-location illustrations, logo in Intro, SuccessState/ErrorState in End screens, location scenes on Map grid. Added mega-viral test. |
 
 ---
 

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGameStore } from "@game/state/gameStore";
 import { Card } from "@ui/index";
+import { LogoMark } from "@assets/illustrations";
 import { audio } from "@lib/audio";
 
 const AVATARS = ["😎", "🦄", "🔥", "🌟", "👑", "🐱", "🤖", "💡"];
@@ -22,7 +23,8 @@ export function IntroScreen() {
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-bg-primary animate-fadeIn">
       <Card className="w-full max-w-sm p-6 animate-scaleIn" variant="glass">
         <div className="text-center">
-          <p className="text-4xl">{avatar}</p>
+          <LogoMark size={56} className="mx-auto text-accent-cyan" />
+          <p className="text-4xl mt-2">{avatar}</p>
           <h1 className="mt-2 text-2xl font-extrabold bg-gradient-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent">
             Influencer Empire
           </h1>

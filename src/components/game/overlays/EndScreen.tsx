@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useGameStore } from "@game/state/gameStore";
 import { Card } from "@ui/index";
+import { SuccessState, ErrorState } from "@assets/illustrations";
 import { audio } from "@lib/audio";
 
 export function EndScreen() {
@@ -26,7 +27,7 @@ export function EndScreen() {
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <Card className="w-full max-w-sm p-6 text-center animate-scaleIn" variant="glass">
-        <div className="text-5xl">{won ? "🏆" : "💸"}</div>
+        <div className="flex justify-center">{won ? <SuccessState size={80} /> : <ErrorState size={80} />}</div>
         <h1 className={`mt-3 text-2xl font-extrabold ${won ? "bg-gradient-to-r from-amber-300 to-accent-purple bg-clip-text text-transparent" : "text-error"}`}>
           {won ? "You Made It!" : "Bankrupt"}
         </h1>

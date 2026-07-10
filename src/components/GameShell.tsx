@@ -7,6 +7,7 @@ import { Confetti } from "./game/shared/Confetti";
 import { DaySummaryOverlay } from "./game/overlays/DaySummaryOverlay";
 import { IntroScreen } from "./game/overlays/IntroScreen";
 import { EndScreen } from "./game/overlays/EndScreen";
+import { ViralMomentOverlay } from "./game/overlays/ViralMomentOverlay";
 
 interface GameShellProps {
   children: ReactNode;
@@ -26,6 +27,7 @@ export function GameShell({ children }: GameShellProps) {
       <DaySummaryOverlay />
       <EndScreen />
       <IntroScreen />
+      <ViralMomentOverlay />
     </div>
   );
 }

@@ -43,6 +43,14 @@ describe("ACTIVITY_EFFECTS", () => {
     expect(delta(viral, "followers")).toBeGreaterThan(delta(flop, "followers"));
   });
 
+  it("a lucky roll produces a mega viral moment with boosted followers", () => {
+    const rngMega = () => 0;
+    const mega = ACTIVITY_EFFECTS.record_video.resolve(rngMega, base);
+    expect(mega.tier).toBe("viral");
+    expect(mega.mega).toBe(true);
+    expect(delta(mega, "followers")).toBeGreaterThan(30);
+  });
+
   it("sleep restores energy to maxEnergy", () => {
     const out = ACTIVITY_EFFECTS.sleep.resolve(rngMid, { ...base, energy: 3 });
     expect(out.resources.energy).toBe(10);

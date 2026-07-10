@@ -4,6 +4,7 @@ import { NPCS } from "@game/data/npcs";
 import type { LocationId } from "@game/types";
 import { Card, StatCard, IconBox } from "@ui/index";
 import { CharacterPortrait, NPC_PORTRAITS } from "@assets/characters";
+import { LocationScene } from "@assets/illustrations";
 import { audio } from "@lib/audio";
 
 export function MapScreen() {
@@ -118,6 +119,7 @@ export function MapScreen() {
               className={`flex flex-col items-center gap-2 p-4 rounded-card border transition-all active:scale-[0.96] ${isHere ? "" : "bg-white/[0.04] border-white/10 hover:bg-white/[0.06] hover:border-white/20"}`}
               style={isHere ? { background: loc.theme.surface, borderColor: loc.theme.accent + "66" } : undefined}
             >
+              <LocationScene id={loc.id} size={72} color={loc.theme.accent} className="absolute -bottom-2 -right-2 opacity-[0.12] pointer-events-none" />
               <div className="relative">
                 <IconBox size="md" color={loc.theme.accent}>{loc.icon}</IconBox>
                 {hasEvent && <span className="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full animate-pulse" />}

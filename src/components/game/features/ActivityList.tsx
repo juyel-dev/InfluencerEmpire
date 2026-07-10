@@ -4,6 +4,7 @@ import { useGameStore } from "@game/state/gameStore";
 import { useFeedbackStore, type FloatKind } from "@game/state/feedbackStore";
 import { audio } from "@lib/audio";
 import { ProgressBar } from "@ui/index";
+import { LocationScene } from "@assets/illustrations";
 import type { Location } from "@game/types";
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -54,6 +55,9 @@ export function ActivityList({ loc }: ActivityListProps) {
       for (const [d, kind, icon] of deltas) {
         if (d !== 0) fb.spawn(`${d > 0 ? "+" : ""}${d} ${icon}`, kind, x, y - 12);
       }
+      if (result.outcome?.mega) {
+        useGameStore.getState().showViralMoment(after.followers - before.followers, loc.name);
+      }
     }
     if (result.success) setTimeout(() => useGameStore.getState().checkMilestones(), 100);
   };
@@ -68,11 +72,9 @@ export function ActivityList({ loc }: ActivityListProps) {
       <button onClick={() => setScreen("map")} className="text-xs text-text-muted hover:text-text-secondary transition-colors">← Back to Map</button>
 
       {/* Location header */}
-      <div className="flex items-center gap-4">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl border border-white/10" style={{ background: `linear-gradient(135deg, ${t.accent}33, ${t.accent}11)` }}>
-          {loc.icon}
-        </div>
-        <div>
+      <div className="relative flex items-center gap-4 overflow-hidden rounded-card border border-white/10 p-4" style={{ background: `linear-gradient(135deg, ${t.accent}1a, transparent)` }}>
+        <LocationScene id={loc.id} size={64} color={t.accent} className="opacity-90 shrink-0" />
+        <div className="relative z-10">
           <p className="text-xl font-bold text-white">{loc.name}</p>
           <p className="text-xs text-text-secondary">{loc.description}</p>
         </div>

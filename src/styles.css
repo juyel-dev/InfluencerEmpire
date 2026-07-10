@@ -128,3 +128,39 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Viral Moment burst animation */
+@keyframes vbRay {
+  0% { opacity: 0; transform: scale(0.4); }
+  40% { opacity: 1; transform: scale(1.1); }
+  100% { opacity: 0.7; transform: scale(1); }
+}
+.vb-ray {
+  transform-origin: 60px 60px;
+  animation: vbRay 0.6s ease-out backwards;
+}
+@keyframes vbCore {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.9; }
+}
+.vb-core {
+  transform-origin: 60px 60px;
+  animation: vbCore 0.5s ease-out backwards;
+}
+@keyframes vbRing {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.vb-ring {
+  transform-origin: 60px 60px;
+  animation: vbRing 0.7s ease-out backwards;
+}
+@keyframes vbPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.vb-animate {
+  animation: vbPulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px rgba(6, 182, 212, 0.5));
+}

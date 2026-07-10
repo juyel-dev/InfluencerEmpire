@@ -7,6 +7,7 @@ export interface ActivityOutcome {
   journal: string;
   message: string;
   tier: OutcomeTier;
+  mega?: boolean;
 }
 
 export interface ActivityEffectDef {
@@ -51,19 +52,30 @@ function post(rng: () => number, current: Resources, o: PostOpts): ActivityOutco
   const t = rollTier(rng, current.creativity);
   let f = scale(t, dice(rng, o.fMin, o.fMax));
   const c = o.cMin != null ? scale(t, dice(rng, o.cMin, o.cMax!)) : 0;
-  const m = o.mMin != null ? scale(t, dice(rng, o.mMin, o.mMax!)) : 0;
-  const r = o.rMin != null ? scale(t, dice(rng, o.rMin, o.rMax!)) : 0;
+  let m = o.mMin != null ? scale(t, dice(rng, o.mMin, o.mMax!)) : 0;
+  let r = o.rMin != null ? scale(t, dice(rng, o.rMin, o.rMax!)) : 0;
   if (t === "flop" && o.flopRisk) f = -Math.max(1, Math.round(Math.abs(f) * 0.4));
+
+  // Mega viral: a rare, unforgettable moment on top of a viral roll.
+  const mega = t === "viral" && rng() < 0.16;
+  if (mega) {
+    f = Math.round(f * 2.2);
+    if (m) m = Math.round(m * 1.5);
+    if (r) r = Math.round(r * 1.5);
+  }
 
   const parts: string[] = [];
   if (f !== 0) parts.push(`${f > 0 ? "+" : ""}${f} followers`);
   if (c !== 0) parts.push(`${c > 0 ? "+" : ""}${c} creativity`);
-  if (m !== 0) parts.push(`${m > 0 ? "+" : ""}$${m}`);
+  if (m !== 0) parts.push(`${m > 0 ? "+" : ""}${m} money`);
   if (r !== 0) parts.push(`${r > 0 ? "+" : ""}${r} rep`);
 
   let message: string;
   let journal: string;
-  if (t === "viral") {
+  if (mega) {
+    message = `🌟 MEGA VIRAL MOMENT! ${o.verb} exploded across the internet! ${parts.join(", ")}`;
+    journal = `MEGA VIRAL! ${o.verb}. ${parts.join(", ")}.`;
+  } else if (t === "viral") {
     message = `🔥 VIRAL! ${o.verb} blew up! ${parts.join(", ")}`;
     journal = `Went viral! ${o.verb}. ${parts.join(", ")}.`;
   } else if (t === "flop") {
@@ -80,7 +92,7 @@ function post(rng: () => number, current: Resources, o: PostOpts): ActivityOutco
   if (m !== 0) resources.money = current.money + m;
   if (r !== 0) resources.reputation = current.reputation + r;
 
-  return { resources, journal, message, tier: t };
+  return { resources, journal, message, tier: t, mega };
 }
 
 export const ACTIVITY_EFFECTS: Record<string, ActivityEffectDef> = {

@@ -75,6 +75,7 @@ interface GameStore {
   saveStatus: "idle" | "saving" | "loaded" | "error";
   daySummary: DaySummary | null;
   pendingEventNodeId: string | null;
+  viralMoment: { followers: number; location: string } | null;
 
   setScreen: (screen: ScreenId) => void;
   resetGame: () => void;
@@ -90,6 +91,8 @@ interface GameStore {
   showToast: (message: string, type: Toast["type"]) => void;
   dismissToast: (id: number) => void;
   clearDaySummary: () => void;
+  showViralMoment: (followers: number, location: string) => void;
+  clearViralMoment: () => void;
   startRandomEvent: (nodeId: string) => void;
 }
 
@@ -103,10 +106,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
   saveStatus: "idle",
   daySummary: null,
   pendingEventNodeId: null,
+  viralMoment: null,
 
   setScreen: (screen) => set({ screen }),
 
-  resetGame: () => set({ state: createInitialState(), daySummary: null, pendingEventNodeId: null }),
+  resetGame: () => set({ state: createInitialState(), daySummary: null, pendingEventNodeId: null, viralMoment: null }),
 
   setPlayerName: (name) => {
     set((st) => ({ state: { ...st.state, playerName: name.trim().slice(0, 16) } }));
@@ -373,6 +377,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({ daySummary: null, pendingEventNodeId: null });
     if (pending) get().startRandomEvent(pending);
   },
+  showViralMoment: (followers, location) => {
+    audio.play("win");
+    set({ viralMoment: { followers, location } });
+  },
+  clearViralMoment: () => set({ viralMoment: null }),
   startRandomEvent: (nodeId) => {
     const node = getDialogueNode(nodeId);
     if (!node) return;
