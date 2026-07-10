@@ -580,6 +580,7 @@ src/
 | 2026-07-08 | Project Constitution | Created this document as permanent project authority. Decision log, changelog, open questions, risks, AI agent instructions. |
 | 2026-07-09 | Viral Moment + Art Pass | Added mega-viral outcome tier (rare, ~16% of viral rolls) with full-screen ViralMomentOverlay (animated SVG burst, count-up, sound, confetti). Added SVG art: ViralBurst illustration, LocationScene per-location illustrations, logo in Intro, SuccessState/ErrorState in End screens, location scenes on Map grid. Added mega-viral test. |
 | 2026-07-09 | UI/UX Enhancement Pass | Added AnimatedNumber component (count-up). TopBar now shows milestone progress bar + animated followers/money. Map hero shows path-to-10K progress bar. Screen transitions use slide-up (animate-screenIn). BottomNav has animated sliding active indicator + aria-current. Activity cards show Visible Outcome Odds (viral%/flop% from creativity) — implements D-010. Global focus-visible outline for keyboard accessibility. |
+| 2026-07-09 | Game Enhancement Master Plan | Created `docs/ENHANCEMENT_MASTER_PLAN.md` as the implementation single source of truth. Phases P0 (hardening: store tests, save migration, slice refactor, balance config, selectors) → P1 (meta-progression) → P2 (expansion) → P3 (platform/live-ops) → P4 (live ops). Each feature: deps, complexity, risk, acceptance, files, backward compat. Critical path mandates P0 before P1/P2. |
 
 ---
 
