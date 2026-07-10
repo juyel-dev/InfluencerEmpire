@@ -2,7 +2,8 @@ import { useGameStore } from "@game/state/gameStore";
 import { LOCATIONS } from "@game/data/locations";
 import { NPCS } from "@game/data/npcs";
 import type { LocationId } from "@game/types";
-import { Card, StatCard, IconBox } from "@ui/index";
+import { FINAL_GOAL } from "@game/types";
+import { Card, StatCard, IconBox, ProgressBar, AnimatedNumber } from "@ui/index";
 import { CharacterPortrait, NPC_PORTRAITS } from "@assets/characters";
 import { LocationScene } from "@assets/illustrations";
 import { audio } from "@lib/audio";
@@ -44,9 +45,12 @@ export function MapScreen() {
         </div>
         <div className="grid grid-cols-4 gap-2 mt-4">
           <StatCard label="Energy" value={<><span className="text-accent-cyan">{res.energy}</span><span className="text-xs text-text-muted">/{res.maxEnergy}</span></>} />
-          <StatCard label="Followers" value={res.followers} />
+          <StatCard label="Followers" value={<AnimatedNumber value={res.followers} />} />
           <StatCard label="Money" value={<span className="text-accent-emerald">${res.money}</span>} />
           <StatCard label="Creativity" value={<span className="text-accent-purple">{res.creativity}</span>} />
+        </div>
+        <div className="mt-3">
+          <ProgressBar value={res.followers} max={FINAL_GOAL} color="#06b6d4" label="Path to 10K" />
         </div>
       </Card>
 

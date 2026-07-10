@@ -3,6 +3,7 @@ export { Button } from "./Button";
 export { ProgressBar } from "./ProgressBar";
 export { IconBox } from "./IconBox";
 export { StatCard } from "./StatCard";
+export { AnimatedNumber } from "./AnimatedNumber";
 export { EmptyState } from "./EmptyState";
 export { LoadingState } from "./LoadingState";
 export { ErrorState } from "./ErrorState";

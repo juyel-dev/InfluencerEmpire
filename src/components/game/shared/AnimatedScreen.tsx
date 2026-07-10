@@ -12,7 +12,7 @@ export function AnimatedScreen({ children }: { children: ReactNode }) {
   const screen = useGameStore((s) => s.screen);
 
   return (
-    <div className="flex-1 flex flex-col min-h-0 animate-fadeIn">
+    <div className="flex-1 flex flex-col min-h-0 animate-screenIn">
       <div className={`absolute inset-0 bg-gradient-to-br ${gradients[screen] ?? gradients.map} pointer-events-none transition-opacity duration-500`} />
       <div className="relative z-10 flex-1 flex flex-col">
         {children}

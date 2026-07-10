@@ -67,6 +67,9 @@ export function ActivityList({ loc }: ActivityListProps) {
   const available = loc.activities.filter((a) => a.minDay <= res.day);
   const t = loc.theme;
 
+  const viralPct = Math.round(Math.min(0.04 + res.creativity * 0.008, 0.26) * 100);
+  const flopPct = Math.round(Math.max(0.24 - res.creativity * 0.008, 0.08) * 100);
+
   return (
     <div className={`flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 ${t.gradient}`}>
       <button onClick={() => setScreen("map")} className="text-xs text-text-muted hover:text-text-secondary transition-colors">← Back to Map</button>
@@ -110,6 +113,10 @@ export function ActivityList({ loc }: ActivityListProps) {
                 <div>
                   <p className={`text-sm font-semibold ${canDo ? "text-white" : "text-text-secondary"}`}>{act.name}</p>
                   <p className={`text-xs ${canDo ? "text-text-secondary" : "text-text-muted"}`}>{act.description}</p>
+                  <p className="text-[10px] mt-1 flex gap-2">
+                    <span className="text-accent-fuchsia">Viral {viralPct}%</span>
+                    <span className="text-error">Flop {flopPct}%</span>
+                  </p>
                 </div>
               </div>
               <div className="text-xs font-mono px-2.5 py-1 rounded-lg" style={{ background: canDo ? `${t.accent}22` : "rgba(255,255,255,0.05)", color: canDo ? t.accent : "rgba(255,255,255,0.15)" }}>

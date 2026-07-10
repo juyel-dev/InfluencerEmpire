@@ -557,8 +557,8 @@ src/
 - **Date:** 2026-07-08
 - **Reason:** Players feel cheated by RNG when they can't see the odds. Transparent probability makes loss feel fair and viral feel lucky.
 - **Alternatives:** Hidden odds
-- **Decision:** Activity buttons show viral/flop chance based on current creativity (planned for implementation).
-- **Impact:** Requires UI update to activity cards. Shows "Viral: 12% | Flop: 16%" as small text.
+- **Decision:** Activity cards show live Viral % / Flop % computed from current creativity (implemented 2026-07-09).
+- **Impact:** Risk now feels fair; players can invest in creativity to reduce flop odds and increase viral odds. Implemented in ActivityList.
 
 ### D-011 — Mega Viral Moment (rare tiers)
 - **Date:** 2026-07-09
@@ -579,6 +579,7 @@ src/
 | 2026-07-08 | Production Readiness Review | Pre-production master plan, 15 TODOs, Market research, Player journey, Core systems design. |
 | 2026-07-08 | Project Constitution | Created this document as permanent project authority. Decision log, changelog, open questions, risks, AI agent instructions. |
 | 2026-07-09 | Viral Moment + Art Pass | Added mega-viral outcome tier (rare, ~16% of viral rolls) with full-screen ViralMomentOverlay (animated SVG burst, count-up, sound, confetti). Added SVG art: ViralBurst illustration, LocationScene per-location illustrations, logo in Intro, SuccessState/ErrorState in End screens, location scenes on Map grid. Added mega-viral test. |
+| 2026-07-09 | UI/UX Enhancement Pass | Added AnimatedNumber component (count-up). TopBar now shows milestone progress bar + animated followers/money. Map hero shows path-to-10K progress bar. Screen transitions use slide-up (animate-screenIn). BottomNav has animated sliding active indicator + aria-current. Activity cards show Visible Outcome Odds (viral%/flop% from creativity) — implements D-010. Global focus-visible outline for keyboard accessibility. |
 
 ---
 
@@ -596,6 +597,10 @@ src/
 - [x] Player identity (name + intro)
 - [x] Random events
 - [x] Sound toggle + reduced-motion
+- [x] Visible outcome odds on activity cards (D-010)
+- [x] Animated HUD counters + milestone/path progress bars
+- [x] Screen slide transitions + animated nav indicator
+- [x] Keyboard focus-visible accessibility
 
 ### Next Phase: Meta-Progression (v0.5 → v1.0)
 - [ ] Competitor AI (Leo parallel curve)
@@ -605,7 +610,6 @@ src/
 - [ ] Equipment shop (tiered gear)
 - [ ] Brand deals system
 - [ ] Social feed (post history)
-- [ ] Visible outcome odds on activity cards
 - [ ] Cloud save
 - [ ] Aspirational: 2 new cities, soundtrack, cosmetic store
 
