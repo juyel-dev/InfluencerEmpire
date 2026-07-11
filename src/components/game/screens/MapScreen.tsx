@@ -1,4 +1,13 @@
 import { useGameStore } from "@game/state/gameStore";
+import {
+  useResources,
+  usePlayerName,
+  useFlags,
+  useRelationships,
+  usePendingEvents,
+  useCurrentLocation,
+  useCompletedActivities,
+} from "@game/state/selectors";
 import { LOCATIONS } from "@game/data/locations";
 import { NPCS } from "@game/data/npcs";
 import type { LocationId } from "@game/types";
@@ -9,12 +18,16 @@ import { LocationScene } from "@assets/illustrations";
 import { audio } from "@lib/audio";
 
 export function MapScreen() {
-  const state = useGameStore((s) => s.state);
+  const res = useResources();
+  const playerName = usePlayerName() || "Creator";
+  const flags = useFlags();
+  const relationships = useRelationships();
+  const pendingEvents = usePendingEvents();
+  const currentLocation = useCurrentLocation();
+  const completedActivities = useCompletedActivities();
   const goToLocation = useGameStore((s) => s.goToLocation);
   const setScreen = useGameStore((s) => s.setScreen);
   const showToast = useGameStore((s) => s.showToast);
-  const res = state.resources;
-  const playerName = state.playerName || "Creator";
 
   const mainLocations = LOCATIONS.filter((l) => l.id !== "home");
   const specialLocations = LOCATIONS.filter((l) => l.id === "home");
@@ -55,7 +68,7 @@ export function MapScreen() {
       </Card>
 
       {/* First-day hint */}
-      {res.day <= 2 && state.completedActivities.length === 0 && (
+      {res.day <= 2 && completedActivities.length === 0 && (
         <div className="rounded-card border border-accent-cyan/30 bg-accent-cyan/[0.06] px-4 py-3 text-xs text-text-secondary animate-fadeIn">
           <span className="text-accent-cyan font-semibold">How to play:</span> Tap a location → do activities to grow → <span className="text-white">End Day</span> to recover. Post daily or the algorithm eats your followers!
         </div>
@@ -64,8 +77,8 @@ export function MapScreen() {
       {/* Character faces */}
       <div className="flex gap-2 overflow-x-auto pb-1">
         {NPCS.map((npc) => {
-          const met = state.flags[`met_${npc.id}`];
-          const rel = state.relationships[npc.id] ?? 0;
+          const met = flags[`met_${npc.id}`];
+          const rel = relationships[npc.id] ?? 0;
           const portrait = NPC_PORTRAITS[npc.id];
           return (
             <div key={npc.id} className={`shrink-0 flex items-center gap-2 rounded-xl px-3 py-2 border ${met ? "bg-white/[0.04] border-white/10" : "bg-white/[0.02] border-white/5 opacity-50"}`}>
@@ -87,8 +100,8 @@ export function MapScreen() {
 
       {/* Home */}
       {specialLocations.map((loc) => {
-        const hasEvent = state.pendingEvents.some((e) => e.locationId === loc.id && e.triggerDay <= res.day);
-        const isHere = state.currentLocation === loc.id;
+        const hasEvent = pendingEvents.some((e) => e.locationId === loc.id && e.triggerDay <= res.day);
+        const isHere = currentLocation === loc.id;
         return (
           <button
             key={loc.id}
@@ -114,8 +127,8 @@ export function MapScreen() {
       {/* Other locations grid */}
       <div className="grid grid-cols-2 gap-3">
         {mainLocations.filter((l) => l.unlockedDay <= res.day).map((loc) => {
-          const hasEvent = state.pendingEvents.some((e) => e.locationId === loc.id && e.triggerDay <= res.day);
-          const isHere = state.currentLocation === loc.id;
+          const hasEvent = pendingEvents.some((e) => e.locationId === loc.id && e.triggerDay <= res.day);
+          const isHere = currentLocation === loc.id;
           return (
             <button
               key={loc.id}

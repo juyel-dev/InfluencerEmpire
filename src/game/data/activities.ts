@@ -1,4 +1,5 @@
 import type { Resources } from "../types";
+import { BALANCE } from "./balance";
 
 export type OutcomeTier = "flop" | "normal" | "viral";
 
@@ -20,8 +21,14 @@ const dice = (rng: () => number, min: number, max: number): number =>
   min + Math.floor(rng() * (max - min + 1));
 
 function rollTier(rng: () => number, creativity: number): OutcomeTier {
-  const viral = Math.min(0.04 + creativity * 0.008, 0.26);
-  const flop = Math.max(0.24 - creativity * 0.008, 0.08);
+  const viral = Math.min(
+    BALANCE.outcome.viralBaseChance + creativity * BALANCE.outcome.viralCreativityFactor,
+    BALANCE.outcome.viralChanceCap,
+  );
+  const flop = Math.max(
+    BALANCE.outcome.flopBaseChance - creativity * BALANCE.outcome.flopCreativityFactor,
+    BALANCE.outcome.flopChanceFloor,
+  );
   const r = rng();
   if (r < viral) return "viral";
   if (r > 1 - flop) return "flop";
@@ -29,8 +36,8 @@ function rollTier(rng: () => number, creativity: number): OutcomeTier {
 }
 
 function scale(t: OutcomeTier, v: number): number {
-  if (t === "viral") return Math.round(v * 2.3);
-  if (t === "flop") return Math.round(v * 0.3);
+  if (t === "viral") return Math.round(v * BALANCE.outcome.scaleViral);
+  if (t === "flop") return Math.round(v * BALANCE.outcome.scaleFlop);
   return v;
 }
 
@@ -57,11 +64,11 @@ function post(rng: () => number, current: Resources, o: PostOpts): ActivityOutco
   if (t === "flop" && o.flopRisk) f = -Math.max(1, Math.round(Math.abs(f) * 0.4));
 
   // Mega viral: a rare, unforgettable moment on top of a viral roll.
-  const mega = t === "viral" && rng() < 0.16;
+  const mega = t === "viral" && rng() < BALANCE.mega.chance;
   if (mega) {
-    f = Math.round(f * 2.2);
-    if (m) m = Math.round(m * 1.5);
-    if (r) r = Math.round(r * 1.5);
+    f = Math.round(f * BALANCE.mega.followerMultiplier);
+    if (m) m = Math.round(m * BALANCE.mega.moneyMultiplier);
+    if (r) r = Math.round(r * BALANCE.mega.reputationMultiplier);
   }
 
   const parts: string[] = [];

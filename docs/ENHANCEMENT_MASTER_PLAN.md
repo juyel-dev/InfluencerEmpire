@@ -61,7 +61,7 @@
 - **Files:** `src/components/game/screens/MapScreen.tsx`, `src/game/state/*.ts` (selector hooks).
 - **Backward compat:** Yes.
 
-**Phase 0 Exit Criteria:** Store fully tested, saves validated+migrated, store ≤120 LOC composition root, balance externalized, no player-visible regression.
+**Phase 0 Exit Criteria:** ✅ COMPLETE (2026-07-10) — Store fully tested (26 new store tests, 38 total), saves validated+migrated (v3 envelope, legacy fallback, corruption quarantine), store is a ~30-line composition root over typed slices, balance externalized to `balance.ts`, no player-visible regression (build green, 94 KB gzip).
 
 ---
 
